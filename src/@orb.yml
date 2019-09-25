@@ -1,0 +1,13 @@
+version: 2.1
+
+description: |
+  A orb for setting up maven the Tradeshift way
+
+commands:
+  setup-maven:
+    description: "Setting up maven configuration for Tradeshift projects"
+    steps:
+      - run: |
+          echo ${MAVEN_JENKINS_P12} | base64 -d > jenkins.p12
+          echo ${MAVEN_SETTINGS} | base64 -d > ~/.m2/settings.xml
+          echo ${MAVEN_SETTINGS_SECURITY} | base64 -d > ~/.m2/settings-security.xml
