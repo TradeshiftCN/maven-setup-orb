@@ -1,6 +1,6 @@
-# Tradeshift maven orb
+# Tradeshift orb
 
-Setting up CircleCI to build maven projects the Tradeshift way
+Setting up CircleCI to build projects the Tradeshift way
 
 To use this orb, try:
 

@@ -1,13 +1,42 @@
 version: 2.1
 
 description: |
-  A orb for setting up maven the Tradeshift way
+  A orb for various Tradeshift tools and goodies
 
 commands:
   setup-maven:
     description: "Setting up maven configuration for Tradeshift projects"
     steps:
       - run: |
+          mkdir -p ~/.m2
           echo ${MAVEN_JENKINS_P12} | base64 -d > jenkins.p12
           echo ${MAVEN_SETTINGS} | base64 -d > ~/.m2/settings.xml
           echo ${MAVEN_SETTINGS_SECURITY} | base64 -d > ~/.m2/settings-security.xml
+
+  setup-gcp:
+    description: "Setting up GCP for docker access"
+    steps:
+      - run: |
+          echo $GCLOUD_SERVICE_KEY | base64 -d > key.json
+          gcloud auth activate-service-account $GCP_DEFAULT_SA --key-file=key.json
+          gcloud --quiet config set project $GCP_DEFAULT_PROJECT
+          gcloud --quiet config set compute/zone europe-west1-b
+          gcloud --quiet auth configure-docker
+
+executors:
+  gcp-executor:
+    docker:
+      - image: gcr.io/tradeshift-test/helm-check:latest
+        auth:
+          username: _json_key  
+          password: $GCLOUD_SERVICE_KEY_JSON
+
+jobs:
+  helm-lint:
+    description: "Running the helm-linter on a repository"
+    executor: gcp-executor
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: |
+          /helm-check.sh ${PWD}/kubernetes
